@@ -1,0 +1,36 @@
+name: Docker Image CI
+
+on:
+  # push:
+  #   branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            magnocarlos1988/teste-tecnico_analista-devops:v${{ github.run_number}}
+            magnocarlos1988/teste-tecnico_analista-devops:latest
+      
+      - name: Docker Scout
+        id: docker-scout-environment
+        uses: docker/scout-action@v1
+        with:
+          command: environment
+          image: magnocarlos1988/teste-tecnico_analista-devops:latest
+          organization: ${{ vars.DOCKERHUB_USERNAME }}
