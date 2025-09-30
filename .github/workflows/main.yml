@@ -31,6 +31,6 @@ jobs:
         id: docker-scout-environment
         uses: docker/scout-action@v1
         with:
-          command: environment
+          command: cves,recommendations
           image: magnocarlos1988/teste-tecnico_analista-devops:latest
           organization: ${{ vars.DOCKERHUB_USERNAME }}
