@@ -18,5 +18,6 @@ php artisan config:cache
 php artisan route:cache
 
 # Run the default command
-# exec "$@"
-php-fpm
+# php-fpm
+
+exec "$@"
