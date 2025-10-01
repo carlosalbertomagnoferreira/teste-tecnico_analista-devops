@@ -1,0 +1,16 @@
+[
+  {
+    "name": "my-first-task",
+    "image": "docker.io/magnocarlos1988/teste-tecnico_analista-devops:latest",
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80
+      }
+    ],
+    "memory": 512,
+    "cpu": 256,
+    "networkMode": "awsvpc"
+  }
+]
