@@ -1,23 +1,8 @@
 # Stage 1: de instalação dos componentes com o composer
-FROM composer:2 AS vendor
-
-# Definindo diretorio de trabalho para contrução da imagem
-WORKDIR /tmp/
-
-COPY composer.json composer.json
-COPY composer.lock composer.lock
-
-RUN composer install \
-    --ignore-platform-reqs \
-    --no-interaction \
-    --no-plugins \
-    --no-scripts \
-    --prefer-dist \
-    --no-dev \
-    --optimize-autoloader
-
-# Stage 2: Contrução da imagem com os arquivos do stage 1
 FROM php:8.3-fpm-alpine3.22
+
+# Update de pacotes, correção de vulnerabilidades
+RUN apk update && apk upgrade
 
 # Definindo diretorio de trabalho para contrução da imagem
 WORKDIR /var/www/html
@@ -25,8 +10,11 @@ WORKDIR /var/www/html
 # Copiando arquivos do repositorio para a imagem
 COPY . .
 
-# Copiando arquivos do stage 1
-COPY --from=vendor /tmp/vendor/ ./vendor/
+# Instalando em multistage Composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# Instalação das dependencias
+RUN composer install --no-dev --optimize-autoloader
 
 # Download e instalação do php-fpm health check script
 RUN curl -o /usr/local/bin/php-fpm-healthcheck \
