@@ -4,11 +4,16 @@ FROM php:8.3-fpm-alpine3.22
 # Update de pacotes, correção de vulnerabilidades
 RUN apk update && apk upgrade
 
+# Instalando Nginx e copiando arquivo de configuração
+RUN apk add nginx && \
+    rm -rf /var/cache/apk/*
+COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
+
 # Definindo diretorio de trabalho para contrução da imagem
 WORKDIR /var/www/html
 
 # Copiando arquivos do repositorio para a imagem
-COPY . .
+COPY --chown=www-data:www-data . .
 
 # Instalando em multistage Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
@@ -27,18 +32,13 @@ RUN set -xe && echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-do
 COPY ./docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Configuração de permissões
-RUN chown -R www-data:www-data /var/www
-
-# Definindo usuario de execução
-USER www-data
-
 # Porta de acesso ao php-fpm
-EXPOSE 9000
+EXPOSE 80
 
 # healthcheck do php-fpm, verificando o serviço a cada 30 segundos
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD php-fpm-healthcheck || exit 1
 
 # executa o php-fpm na inicialização do container
-CMD ["php-fpm"]
+# CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Start Nginx
+nohup nginx -g "daemon off;" > /dev/null &
+
 # Run Laravel migrations
 # -----------------------------------------------------------
 # Ensure the database schema is up to date.
@@ -15,4 +18,5 @@ php artisan config:cache
 php artisan route:cache
 
 # Run the default command
-exec "$@"
+# exec "$@"
+php-fpm
