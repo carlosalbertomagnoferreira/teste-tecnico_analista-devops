@@ -1,8 +1,8 @@
-name: CI Build Docker Image
+name: CI - CD
 
 on:
-  push:
-    branches: [ "main" ]
+  # push:
+  #   branches: [ "main" ]
   workflow_dispatch:
   
 jobs:
@@ -40,6 +40,45 @@ jobs:
           command: cves,recommendations
           image: magnocarlos1988/teste-tecnico_analista-devops:latest
           organization: ${{ vars.DOCKERHUB_USERNAME }}
-          only-serity: critical
-          exit-code: false
-  
+
+  CD:
+    needs: CI
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract metadata
+        id: meta
+        run: |
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      
+      - name: Muda versão da imagem para deploy
+        run: sed -i 's/latest/${{ steps.meta.outputs.SHORT_SHA }}/g' task-definitions/task.json
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan.tfout
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan.tfout
