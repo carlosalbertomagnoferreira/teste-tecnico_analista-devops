@@ -1,18 +1,9 @@
-name: Docker Image CI - Deploy ECS CD
+name: CI Build Docker Image
 
 on:
-  # push:
-  #   branches: [ "main" ]
+  push:
+    branches: [ "main" ]
   workflow_dispatch:
-    inputs:
-      apply:
-        description: "Executar terraform"
-        required: true
-        default: 'false'
-        type: choise
-        options:
-          - true
-          - false
   
 jobs:
   CI:
@@ -33,7 +24,7 @@ jobs:
           context: .
           push: true
           tags: |
-            magnocarlos1988/teste-tecnico_analista-devops:v${{ github.run_number}}
+            magnocarlos1988/teste-tecnico_analista-devops:${GITHUB_SHA::7}
             magnocarlos1988/teste-tecnico_analista-devops:latest
       
       - name: Docker Scout
@@ -43,41 +34,6 @@ jobs:
           command: cves,recommendations
           image: magnocarlos1988/teste-tecnico_analista-devops:latest
           organization: ${{ vars.DOCKERHUB_USERNAME }}
+          only-serity: critical
+          exit-code: true
   
-  CD:
-    needs: CI
-    runs-on: ubuntu-latest
-    environment: production
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./terraform
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Muda versão da imagem para deploy
-        run: sed -i 's/latest/v${{ github.run_number}}/g' task-definitions/task.json
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan.tfout
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan.tfout
-        if: github.event.inputs.apply == 'true'
