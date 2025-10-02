@@ -19,5 +19,8 @@ php artisan route:cache
 
 chown -R www-data:www-data database
 
+# Start nginx process
+nohup nginx -g "daemon off;" &
+
 # Run the default command
 exec "$@"
