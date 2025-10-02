@@ -34,6 +34,9 @@ RUN set -xe && echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-do
 COPY ./docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# Ajuste de permissões
+RUN chown -R www-data:www-data vendor
+
 # Porta de acesso ao php-fpm
 EXPOSE 80
 

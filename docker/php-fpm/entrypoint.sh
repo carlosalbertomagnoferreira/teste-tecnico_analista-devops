@@ -20,6 +20,8 @@ php artisan migrate --force
 php artisan config:cache
 php artisan route:cache
 
+chown -R www-data:www-data database
+
 # Run the default command
 # php-fpm
 
