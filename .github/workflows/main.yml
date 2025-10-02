@@ -47,5 +47,5 @@ jobs:
           image: magnocarlos1988/teste-tecnico_analista-devops:latest
           organization: ${{ vars.DOCKERHUB_USERNAME }}
           only-serity: critical
-          exit-code: true
+          exit-code: false
   

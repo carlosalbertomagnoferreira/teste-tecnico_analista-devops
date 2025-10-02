@@ -38,8 +38,6 @@ on:
 jobs:
   call-main:
     uses: ./.github/workflows/main.yml
-    with:
-      message: "Short tag from main.yaml"
 
   Terraform:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
