@@ -19,7 +19,8 @@ COPY --chown=www-data:www-data . .
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Instalação das dependencias
-RUN composer install --no-dev --optimize-autoloader
+RUN composer update
+RUN composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
 # Download e instalação do php-fpm health check script
 RUN curl -o /usr/local/bin/php-fpm-healthcheck \

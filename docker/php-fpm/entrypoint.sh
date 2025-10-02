@@ -4,6 +4,8 @@ set -e
 # Start Nginx
 nohup nginx -g "daemon off;" > /dev/null &
 
+php artisan key:generate
+
 # Run Laravel migrations
 # -----------------------------------------------------------
 # Ensure the database schema is up to date.
