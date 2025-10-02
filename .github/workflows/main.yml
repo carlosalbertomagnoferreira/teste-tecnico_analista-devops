@@ -1,9 +1,9 @@
 name: CI - CD
 
 on:
-  # push:
-  #   branches: [ "main" ]
-  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  # workflow_dispatch:
   
 jobs:
   CI:
@@ -24,14 +24,13 @@ jobs:
         run: |
           echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }}
-            magnocarlos1988/teste-tecnico_analista-devops:latest
+      - name: Build Docker image
+        run: docker build -t magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }}
+      
+      - name: Tag latest
+        run: |
+          docker tag -t magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }} \
+          magnocarlos1988/teste-tecnico_analista-devops:latest
       
       - name: Docker Scout
         id: docker-scout-environment
@@ -40,6 +39,11 @@ jobs:
           command: cves,recommendations
           image: magnocarlos1988/teste-tecnico_analista-devops:latest
           organization: ${{ vars.DOCKERHUB_USERNAME }}
+      
+      - name: Push Image to Docker Hub
+        run: |
+          docker push magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }}
+          docker push magnocarlos1988/teste-tecnico_analista-devops:latest
 
   CD:
     needs: CI
