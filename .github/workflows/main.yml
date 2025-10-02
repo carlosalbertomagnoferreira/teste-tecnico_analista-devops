@@ -4,7 +4,10 @@ on:
   # push:
   #   branches: [ "main" ]
   workflow_dispatch:
-  
+
+env:
+  repositorio_nome_imagem: "magnocarlos1988/teste-tecnico_analista-devops"
+
 jobs:
   CI:
     runs-on: ubuntu-latest
@@ -31,21 +34,20 @@ jobs:
           context: .
           push: true
           tags: |
-            magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }}
-            magnocarlos1988/teste-tecnico_analista-devops:latest
+            ${{ env.repositorio_nome_imagem }}:${{ steps.meta.outputs.SHORT_SHA }}
+            ${{ env.repositorio_nome_imagem }}:latest
       
       - name: Docker Scout
         id: docker-scout-environment
         uses: docker/scout-action@v1
         with:
           command: cves,recommendations
-          image: magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }}
+          image: "${{ env.repositorio_nome_imagem }}:${{ steps.meta.outputs.SHORT_SHA }}"
           organization: ${{ vars.DOCKERHUB_USERNAME }}
 
   CD:
     needs: CI
     runs-on: ubuntu-latest
-    environment: production
     defaults:
       run:
         shell: bash

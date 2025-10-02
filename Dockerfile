@@ -4,8 +4,10 @@ FROM php:8.3-fpm-alpine3.22
 # Update de pacotes, correção de vulnerabilidades
 RUN apk update && apk upgrade
 
-# Instalando Nginx e copiando arquivo de configuração
-RUN apk add nginx && \
+# Instalando Nginx, fcgi e copiando arquivo de configuração
+RUN apk add --no-cache \
+    fcgi \
+    nginx && \
     rm -rf /var/cache/apk/*
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
@@ -25,7 +27,6 @@ RUN composer install --no-dev --optimize-autoloader
 RUN curl -o /usr/local/bin/php-fpm-healthcheck \
 https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
 && chmod +x /usr/local/bin/php-fpm-healthcheck
-RUN apk add --no-cache fcgi
 RUN set -xe && echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # RUN chown -R www-data:www-data /var/www/html
