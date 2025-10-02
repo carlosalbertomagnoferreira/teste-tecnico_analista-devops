@@ -1,9 +1,9 @@
 name: CI - CD
-
+run-name: Executando CI-CD, executado por ${{ github.actor }}
 on:
-  push:
-    branches: [ "main" ]
-  # workflow_dispatch:
+  # push:
+  #   branches: [ "main" ]
+  workflow_dispatch:
   
 jobs:
   CI:

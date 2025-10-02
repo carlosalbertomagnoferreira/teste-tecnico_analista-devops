@@ -15,7 +15,7 @@ Adicionado HEALTHCHECK.
 
 
 ### Etapa 2: Criação do Pipeline de Integração Contínua (CI)
-Pipeline de CI realizando as actions de checkout do codigo, build da imagem e push para docker hub e checagem de vulnerabilidades com docker scout.
+Pipeline de CI realizando as actions de checkout do codigo, build da imagem com a tag baseada no hash do commit, e push para docker hub da versão gerada e tambem a latest, realiza checagem de vulnerabilidades com docker scout.
 
 ### Etapa 3: Infraestrutura como Código (IaC) e Implantação (CD)
 Na pasta terraform constam os arquivos tf para provisionamento de um cluster ECS com Fargate, o backend do terraform fica armazenado em um bucket no S3, e na pasta task-definitions dentro da terraform consta o task.jon com a definição da tarefa.
