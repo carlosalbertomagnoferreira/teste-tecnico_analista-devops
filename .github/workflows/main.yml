@@ -4,6 +4,11 @@ on:
   # push:
   #   branches: [ "main" ]
   workflow_dispatch:
+    inputs:
+      Apply-terraform:
+        description: "Informar se vai executar o terraform apply"
+        type: boolean
+        default: false
 
 env:
   repositorio_nome_imagem: "magnocarlos1988/teste-tecnico_analista-devops"
@@ -48,6 +53,7 @@ jobs:
   CD:
     needs: CI
     runs-on: ubuntu-latest
+    if: ${{ inputs.Apply-terraform == true }}
     defaults:
       run:
         shell: bash
@@ -78,5 +84,5 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -out=tfplan.tfout
 
-      # - name: Terraform Apply
-      #   run: terraform apply -auto-approve tfplan.tfout
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan.tfout
