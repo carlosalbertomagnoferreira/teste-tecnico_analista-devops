@@ -30,7 +30,7 @@ jobs:
       
       - name: Tag latest
         run: |
-          docker tag -t magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }} \
+          docker tag magnocarlos1988/teste-tecnico_analista-devops:${{ steps.meta.outputs.SHORT_SHA }} \
           magnocarlos1988/teste-tecnico_analista-devops:latest
       
       - name: Docker Scout
