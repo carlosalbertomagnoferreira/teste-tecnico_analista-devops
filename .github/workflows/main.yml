@@ -4,16 +4,10 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-  workflow_call:
-    outputs:
-      tag-image:
-        value: ${{ jobs.CI.outputs.short-tag }}
   
 jobs:
   CI:
     runs-on: ubuntu-latest
-    outputs: 
-      short-tag: ${{ steps.meta.outputs.SHORT_SHA }}
 
     steps:
       - name: Checkout code
