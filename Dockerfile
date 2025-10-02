@@ -45,6 +45,6 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD php-fpm-healthcheck || exit 1
 
 # executa o php-fpm na inicialização do container
-CMD ["php-fpm"]
+CMD ["sh", "-c", "php-fpm && nginx -g 'daemon off;'"]
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

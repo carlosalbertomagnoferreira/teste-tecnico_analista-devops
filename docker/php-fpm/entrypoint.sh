@@ -1,9 +1,6 @@
 #!/bin/sh
 set -e
 
-# Start Nginx
-nohup nginx -g "daemon off;" > /dev/null &
-
 php -r "file_exists('.env') || copy('.env.example', '.env');"
 php artisan key:generate
 
@@ -23,6 +20,4 @@ php artisan route:cache
 chown -R www-data:www-data database
 
 # Run the default command
-# php-fpm
-
 exec "$@"
