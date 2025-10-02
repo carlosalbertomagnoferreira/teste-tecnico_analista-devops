@@ -19,8 +19,7 @@ COPY --chown=www-data:www-data . .
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Instalação das dependencias
-RUN composer update
-RUN composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+RUN composer install --no-dev --optimize-autoloader
 
 # Download e instalação do php-fpm health check script
 RUN curl -o /usr/local/bin/php-fpm-healthcheck \
@@ -29,7 +28,7 @@ https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-
 RUN apk add --no-cache fcgi
 RUN set -xe && echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
-RUN chown -R www-data:www-data /var/www/html
+# RUN chown -R www-data:www-data /var/www/html
 
 # Transferindo arquivo de inicialização
 COPY ./docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
