@@ -29,6 +29,8 @@ https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-
 RUN apk add --no-cache fcgi
 RUN set -xe && echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
+RUN chown -R www-data:www-data /var/www/html
+
 # Transferindo arquivo de inicialização
 COPY ./docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
