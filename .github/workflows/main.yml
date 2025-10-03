@@ -5,6 +5,10 @@ on:
   #   branches: [ "main" ]
   workflow_dispatch:
     inputs:
+      docker-build-push-image:
+        description: "Executar build push da imagem docker"
+        type: boolean
+        default: false
       terraform-apply:
         description: "Executar terraform apply"
         type: boolean
@@ -23,6 +27,7 @@ env:
 
 jobs:
   CI:
+    if: inputs.docker-build-push-image == true
     runs-on: ubuntu-latest
     outputs:
       tag-image: ${{ steps.meta.outputs.SHORT_SHA }}
@@ -59,9 +64,10 @@ jobs:
           organization: ${{ vars.DOCKERHUB_USERNAME }}
 
   CD:
+    if: ${{ always() }}
     needs: CI
     runs-on: ubuntu-latest
-    if: inputs.terraform-apply == true
+
     defaults:
       run:
         shell: bash
