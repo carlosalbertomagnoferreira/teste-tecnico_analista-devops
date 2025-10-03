@@ -1,5 +1,5 @@
 name: CI - CD
-run-name: Executando CI-CD, executado por ${{ github.actor }}
+run-name: Executando CI-CD - ${{ github.run_number }}
 on:
   # push:
   #   branches: [ "main" ]
