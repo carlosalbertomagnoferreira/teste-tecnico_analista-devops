@@ -9,7 +9,7 @@ on:
         description: "Executar build push da imagem docker"
         type: boolean
         default: false
-        
+
       terraform-apply:
         description: "Executar terraform apply"
         type: boolean

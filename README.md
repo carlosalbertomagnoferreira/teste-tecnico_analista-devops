@@ -13,7 +13,6 @@ Executado apk update && apk upgrade para corrigir algumas vulneradilidades.
 Para funcionamento da aplicação foi instalado o nginx e configurado para iniciar com o container.   
 Adicionado HEALTHCHECK com o php-fpm-healthcheck.
 
-
 ### Etapa 2: Criação do Pipeline de Integração Contínua (CI)
 Pipeline de CI com o Github Actions realizando as actions:   
 Checkout do codigo;   
