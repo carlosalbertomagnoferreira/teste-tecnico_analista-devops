@@ -11,21 +11,5 @@ resource "aws_ecs_service" "my_first_services" {
     assign_public_ip = true
   }
   enable_ecs_managed_tags = true
-  wait_for_steady_state   = true
 
-  tags = {
-    name = "service-test-devops"
-  }
-
-}
-
-data "aws_network_interface" "interface_tags" {
-  filter {
-    name   = "tag:aws:ecs:serviceName"
-    values = ["service-test-devops*"]
-  }
-}
-
-output "public_ip" {
-  value = data.aws_network_interface.interface_tags.association[0].public_ip
 }
