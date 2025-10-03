@@ -9,14 +9,12 @@ on:
         description: "Executar build push da imagem docker"
         type: boolean
         default: false
+        
       terraform-apply:
         description: "Executar terraform apply"
         type: boolean
         default: false
-      terraform-plan-destroy:
-        description: "Executar terraform plan destroy"
-        type: boolean
-        default: false
+
       terraform-destroy:
         description: "Executar terraform destroy"
         type: boolean
@@ -103,13 +101,9 @@ jobs:
         run: terraform apply -auto-approve tfplan.tfout
         if: inputs.terraform-apply == true
 
-      - name: Terraform Output
-        run: terraform output ecs_task_public_ip
-        if: inputs.terraform-apply == true
-
       - name: Plan Destroy
         run: terraform plan -destroy -out=tfplandestroy
-        if: inputs.terraform-plan-destroy == true
+        if: inputs.terraform-destroy == true
 
       - name: Terraform Destroy
         run: terraform apply -destroy -auto-approve tfplandestroy
