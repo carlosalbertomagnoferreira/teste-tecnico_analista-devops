@@ -10,4 +10,24 @@ resource "aws_ecs_service" "my_first_services" {
     subnets          = [aws_default_subnet.ecs_az1.id]
     assign_public_ip = true
   }
+  enable_ecs_managed_tags = true
+}
+
+data "aws_network_interfaces" "network_eni" {
+  tags = {
+    "aws:ecs:serviceName" = aws_ecs_service.my_first_services.name
+  }
+  filter {
+    name   = "description"
+    values = ["ECS elastic network interface*"]
+  }
+}
+
+data "aws_network_interface" "network_eni_details" {
+  id = data.aws_network_interfaces.network_eni.ids[0] # Assuming one ENI per service for simplicity
+}
+
+output "ecs_task_public_ip" {
+  value       = data.aws_network_interface.network_eni_details.public_ip
+  description = "The public IP address of the ECS Fargate task."
 }

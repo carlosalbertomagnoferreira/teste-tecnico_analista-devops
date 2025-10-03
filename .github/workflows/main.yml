@@ -78,6 +78,7 @@ jobs:
 
       - name: Muda versão da imagem para deploy
         run: sed -i 's/latest/${{ needs.CI.outputs.tag-image }}/g' task-definitions/task.json
+        if: inputs.docker-build-push-image == true
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5.0.0
@@ -100,6 +101,10 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan.tfout
+        if: inputs.terraform-apply == true
+
+      - name: Terraform Output
+        run: terraform output ecs_task_public_ip
         if: inputs.terraform-apply == true
 
       - name: Plan Destroy
