@@ -94,14 +94,15 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Terraform Plan
+      - name: Terraform Plan Apply
         run: terraform plan -out=tfplan.tfout
+        if: inputs.terraform-apply == true
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan.tfout
         if: inputs.terraform-apply == true
 
-      - name: Plan Destroy
+      - name: Terraform Plan Destroy
         run: terraform plan -destroy -out=tfplandestroy
         if: inputs.terraform-destroy == true
 
