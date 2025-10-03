@@ -40,6 +40,8 @@ Tambem é possivel fazer a combinação:
   - CI --> CD   
     - build-push --> terraform apply
 
+<img src="GITHUBACTIONS-CI-CD.png ">
+
 ### Etapa 4: Estratégia de Observabilidade
 Para as principais metricas de observabilidade usaria o Grafana para centralizar a visualização, consultas e alertas, sendo:
 - Loki para logs da aplicação   
