@@ -5,8 +5,16 @@ on:
   #   branches: [ "main" ]
   workflow_dispatch:
     inputs:
-      Apply-terraform:
-        description: "Informar se vai executar o terraform apply"
+      terraform-apply:
+        description: "Executar terraform apply"
+        type: boolean
+        default: false
+      terraform-plan-destroy:
+        description: "Executar terraform plan destroy"
+        type: boolean
+        default: false
+      terraform-destroy:
+        description: "Executar terraform destroy"
         type: boolean
         default: false
 
@@ -53,7 +61,7 @@ jobs:
   CD:
     needs: CI
     runs-on: ubuntu-latest
-    if: ${{ inputs.Apply-terraform == true }}
+    if: inputs.terraform-apply == true
     defaults:
       run:
         shell: bash
@@ -66,14 +74,14 @@ jobs:
         run: sed -i 's/latest/${{ needs.CI.outputs.tag-image }}/g' task-definitions/task.json
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v5.0.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3.1.2
 
       - name: Terraform Init
         run: terraform init
@@ -86,3 +94,12 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan.tfout
+        if: inputs.terraform-apply == true
+
+      - name: Plan Destroy
+        run: terraform plan -destroy -out=tfplandestroy
+        if: inputs.terraform-plan-destroy == true
+
+      - name: Terraform Destroy
+        run: terraform apply -destroy -auto-approve tfplandestroy
+        if: inputs.terraform-destroy == true
