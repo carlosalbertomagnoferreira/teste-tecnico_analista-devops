@@ -51,8 +51,8 @@ Combinações possíveis:
 - CI --> CD (build-push --> terraform apply) 🔗
 
 <div align="center">
-<img src="GITHUBACTIONS-INPUTS.png" alt="INPUTS diagra" width="40%" />
-<img src="GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" width="90%" />
+<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-INPUTS.png" alt="INPUTS diagra" width="50%" />
+<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" width="100%" />
 </div>
 
 ---
