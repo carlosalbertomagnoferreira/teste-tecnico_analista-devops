@@ -47,12 +47,12 @@ O workflow foi configurado para execução manual com alguns inputs:
 - Executar `terraform destroy`  
   - Se marcado sozinho, executa apenas o destroy para remover o ambiente ⚠️
 
-Combinações possíveis:
+Executando a pipeline completa:
 - CI --> CD (build-push --> terraform apply) 🔗
 
 <div align="center">
-<img src="GITHUBACTIONS-INPUTS.png" alt="INPUTS diagra" width="40%" />
-<img src="GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" width="90%" />
+<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-INPUTS.png" alt="INPUTS diagram" width="50%" />
+<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" width="100%" />
 </div>
 
 ---
