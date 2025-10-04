@@ -50,7 +50,10 @@ O workflow foi configurado para execução manual com alguns inputs:
 Combinações possíveis:
 - CI --> CD (build-push --> terraform apply) 🔗
 
-<img src="GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" />
+<div align="center">
+<img src="GITHUBACTIONS-INPUTS.png" alt="INPUTS diagra" width="40%" />
+<img src="GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" width="90%" />
+</div>
 
 ---
 
