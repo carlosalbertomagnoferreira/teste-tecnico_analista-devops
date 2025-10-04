@@ -152,5 +152,5 @@ jobs:
         with:
           namespace: 'myapp'
           manifests: |
-              dir/manifestsDirectory
+              k8s/deploy_svc.yaml
           images: ${{ env.repositorio_nome_imagem }}:${{ needs.CI.outputs.tag-image }}
