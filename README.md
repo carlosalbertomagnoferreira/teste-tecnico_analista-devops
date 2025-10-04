@@ -1,48 +1,62 @@
-# Teste Tecnico Analista Devops [![CI - CD](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml/badge.svg)](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml)
-Repositorio de teste tecnico para analista devops.   
-Objetivo:   
-Containerizar uma aplicação simples em PHP seguindo boas praticas para construção da imagem docker   
-Criar pipeline de integração continua (CI) usando o Github Actions para fazer build, push e checagem de vulnerabilidades da imagem   
-Provisionamento de infraestrutura na AWS para implantação da aplicação usando Terraform para IaC   
-Implantação e entrega da aplicação (CD) no ambiente provisionado integrando as pipelines de CI-CD
+# Teste Técnico Analista DevOps 🚀 [![CI - CD](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml/badge.svg)](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml)
 
-### Etapa 1: Containerização da Aplicação   
-Dockerfile configurado para uma aplicação simples do PHP com Laravel.   
-Imagem usada: php:8.3-fpm-alpine3.22 otimizada com poucos pacotes e poucas vulnerabilidades.   
-Executado apk update && apk upgrade para corrigir algumas vulneradilidades.   
-Para funcionamento da aplicação foi instalado o nginx e configurado para iniciar com o container.   
-Adicionado HEALTHCHECK com o php-fpm-healthcheck.
+[![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/) [![Docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white)](https://www.docker.com/) [![Laravel](https://img.shields.io/badge/Laravel-red?logo=laravel&logoColor=white)](https://laravel.com/) [![Terraform](https://img.shields.io/badge/Terraform-1.x-4C6A86?logo=terraform&logoColor=white)](https://www.terraform.io/) [![AWS](https://img.shields.io/badge/AWS-Amazon%20Web%20Services-orange?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/) [![Nginx](https://img.shields.io/badge/nginx-stable-009639?logo=nginx&logoColor=white)](https://nginx.org/) [![Prometheus](https://img.shields.io/badge/Prometheus-orange?logo=prometheus&logoColor=white)](https://prometheus.io/) [![Grafana](https://img.shields.io/badge/Grafana-latest-F46800?logo=grafana&logoColor=white)](https://grafana.com/) [![Loki](https://img.shields.io/badge/Loki-latest-0f172a?logo=grafana&logoColor=white)](https://grafana.com/oss/loki)
 
-### Etapa 2: Criação do Pipeline de Integração Contínua (CI)
-Pipeline de CI com o Github Actions realizando as actions:   
-Checkout do codigo;   
-Login no Docker Hub;   
-Build da imagem com a tag baseada no hash do commit;   
-Push para docker hub da versão gerada e tambem a latest   
-Realiza checagem de vulnerabilidades com docker scout.
+Repositório de teste técnico para Analista DevOps.  
+Objetivo:  
+- Containerizar uma aplicação simples em PHP seguindo boas práticas para construção da imagem Docker 🐳  
+- Criar pipeline de integração contínua (CI) usando GitHub Actions para build, push e checagem de vulnerabilidades da imagem ⚙️🔒  
+- Provisionamento de infraestrutura na AWS usando Terraform como IaC 🏗️🌩️  
+- Implantação e entrega da aplicação (CD) no ambiente provisionado integrando as pipelines de CI/CD ✅
 
-### Etapa 3: Infraestrutura como Código (IaC) e Implantação (CD)
-Usando o Terraform para Iac, na pasta terraform constam os arquivos tf para provisionamento de um cluster ECS com Fargate.   
-O backend do terraform fica armazenado em um bucket no S3, e na pasta task-definitions dentro da terraform consta o task.jon com a definição da tarefa para implantação no ECS.   
-Foi implementado ECS devido ser para uma unica aplicaçao simples, o ECS vai dar suporte suficiente para escalabilidade, estabilidade e agilidade na entrega.
+---
 
-### Pontos Importantes sobre o workflow feito no GitHub Actions
-O workflow foi configurado para ser executado manualmente com alguns inputs, sendo:   
-- Executar build-push da imagem   
-  - Com apenas esse imput marcado será executado apenas o job CI   
-- Executar terraform apply   
-  - Com apenas esse imput marcado, apenas o job CD ira ser executado com o apply para implantar o cluster ECS e a task com a versão latest da imagem   
-- Executar terraform destroy   
-  - Se marcado sozinho deve executar o destroy do ECS implantado.   
+### Etapa 1: Containerização da Aplicação 🧩
+- `Dockerfile` configurado para uma aplicação simples em PHP com Laravel.  
+- Imagem base: `php:8.3-fpm-alpine3.22` otimizada com poucos pacotes e vulnerabilidades reduzidas 🐚  
+- Executado `apk update && apk upgrade` para mitigar vulnerabilidades conhecidas 🔧  
+- Instalado e configurado `nginx` para servir a aplicação dentro do container ⚓  
+- Adicionado `HEALTHCHECK` com `php-fpm-healthcheck` para validar estado do serviço ❤️‍🩹
 
-Tambem é possivel fazer a combinação:
-  - CI --> CD   
-    - build-push --> terraform apply
+---
 
-<img src="GITHUBACTIONS-CI-CD.png ">
+### Etapa 2: Criação do Pipeline de Integração Contínua (CI) 🤖
+Pipeline em GitHub Actions com as etapas principais:
+- Checkout do código 📥  
+- Login no Docker Hub 🔑  
+- Build da imagem com tag baseada no hash do commit 🏷️  
+- Push para Docker Hub (versão gerada + `latest`) 📦  
+- Checagem de vulnerabilidades com Docker Scout 🔍
 
-### Etapa 4: Estratégia de Observabilidade
-Para as principais metricas de observabilidade usaria o Grafana para centralizar a visualização, consultas e alertas, sendo:
-- Loki para logs da aplicação   
-- Prometheus para as metricas e criar paineis de monitoramento.
-- Grafana Tempo para tracing do tempo de resposta de requisição, gargalos e latencia.
+---
+
+### Etapa 3: Infraestrutura como Código (IaC) e Implantação (CD) 🏗️➡️🚀
+- Usando Terraform para IaC — arquivos em `terraform/` para provisionamento de cluster ECS com Fargate 🧭  
+- Backend do Terraform armazenado em um bucket S3 (state remoto) 🗄️  
+- Definições de tarefa em `terraform/task-definitions/task.json` com configuração da task do ECS 📝  
+- Escolha do ECS por ser adequado para uma aplicação única, com suporte a escalabilidade e estabilidade 📈
+
+---
+
+### Pontos Importantes sobre o workflow no GitHub Actions 🔁
+O workflow foi configurado para execução manual com alguns inputs:
+- Executar build-push da imagem  
+  - Se marcado sozinho, executa apenas o job CI 🛠️
+- Executar `terraform apply`  
+  - Se marcado sozinho, executa apenas o job CD para aplicar infra e implantar a task com a imagem `latest` 🌍
+- Executar `terraform destroy`  
+  - Se marcado sozinho, executa apenas o destroy para remover o ambiente ⚠️
+
+Combinações possíveis:
+- CI --> CD (build-push --> terraform apply) 🔗
+
+<img src="GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" />
+
+---
+
+### Etapa 4: Estratégia de Observabilidade 📊
+Para observabilidade e monitoramento propus:
+- Grafana para visualização, consultas e alertas 📈  
+- Loki para logs da aplicação 🪵  
+- Prometheus para métricas e criação de painéis de monitoramento 📡  
+- Grafana Tempo para tracing (latência, gargalos) ⏱️
