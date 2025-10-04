@@ -1,4 +1,4 @@
-# Teste Tecnico Analista Devops
+# Teste Tecnico Analista Devops [![CI - CD](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml/badge.svg)](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml)
 Repositorio de teste tecnico para analista devops.   
 Objetivo:   
 Containerizar uma aplicação simples em PHP seguindo boas praticas para construção da imagem docker   
