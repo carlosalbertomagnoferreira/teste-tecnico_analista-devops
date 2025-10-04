@@ -19,6 +19,16 @@ on:
         description: "Executar terraform destroy"
         type: boolean
         default: false
+      
+      deploy-to-ecs-new-version:
+        description: "Deploy nova versao da imagem no ECS"
+        type: boolean
+        default: false
+
+      deploy-to-k8s:
+        description: "Deploy em cluster kubernetes"
+        type: boolean
+        default: false
 
 env:
   repositorio_nome_imagem: "magnocarlos1988/teste-tecnico_analista-devops"
@@ -61,7 +71,7 @@ jobs:
           image: "${{ env.repositorio_nome_imagem }}:${{ steps.meta.outputs.SHORT_SHA }}"
           organization: ${{ vars.DOCKERHUB_USERNAME }}
 
-  CD:
+  IaC-Terraform:
     if: ${{ always() }}
     needs: CI
     runs-on: ubuntu-latest
@@ -109,3 +119,38 @@ jobs:
       - name: Terraform Destroy
         run: terraform apply -destroy -auto-approve tfplandestroy
         if: inputs.terraform-destroy == true
+
+  CD-ECS:
+    if: ${{ always() }}
+    needs: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to ECS
+        if: inputs.deploy-to-ecs-new-version == true
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2.4.0
+        with:
+          task-definition: ./terraform/task-definitions/task.json
+          cluster: teste-devops
+          service: service-test-devops
+
+  CD-K8S:
+    if: ${{ always() }}
+    needs: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure kubeconfig
+        if: inputs.deploy-to-k8s == true
+        id: setcontext
+        uses: azure/k8s-set-context@v4.0.1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy to K8S
+        if: inputs.deploy-to-k8s == true
+        uses: Azure/k8s-deploy@v5.0.4
+        with:
+          namespace: 'myapp'
+          manifests: |
+              dir/manifestsDirectory
+          images: ${{ env.repositorio_nome_imagem }}:${{ needs.CI.outputs.tag-image }}
