@@ -1,0 +1,45 @@
+name: CI - IaC - CD
+run-name: Executando CI-IaC-CD - ${{ github.run_number }}
+on:
+  workflow_dispatch:
+
+env:
+  repositorio_nome_imagem: "magnocarlos1988/teste-tecnico_analista-devops"
+
+jobs:
+  Deploy K8S:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract metadata
+        id: meta
+        run: |
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Configure kubeconfig
+        id: setcontext
+        uses: azure/k8s-set-context@v4.0.1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: View kubectl-version
+        run: |
+          kubectl version
+
+      - name: Deploy to K8S
+        uses: Azure/k8s-deploy@v5.0.4
+        with:
+          namespace: 'myapp'
+          manifests: |
+            ./k8s/deploy_svc.yaml
+          images: ${{ env.repositorio_nome_imagem }}:${{ needs.CI.outputs.tag-image }}

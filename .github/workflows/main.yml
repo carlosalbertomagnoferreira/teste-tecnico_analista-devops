@@ -1,5 +1,5 @@
-name: CI - CD
-run-name: Executando CI-CD - ${{ github.run_number }}
+name: CI - IaC - CD
+run-name: Executando CI-IaC-CD - ${{ github.run_number }}
 on:
   # push:
   #   branches: [ "main" ]
