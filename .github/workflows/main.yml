@@ -121,7 +121,7 @@ jobs:
         if: inputs.terraform-destroy == true
 
   CD-ECS:
-    if: ${{ always() }}
+    if: inputs.deploy-to-ecs-new-version == true
     needs: CI
     runs-on: ubuntu-latest
     steps:
@@ -135,8 +135,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      - name: Muda nome da task
+        run: sed -i 's/first/${{ github.run_number }}/g' ./terraform/task-definitions/task.json
+
       - name: Deploy to ECS
-        if: inputs.deploy-to-ecs-new-version == true
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2.4.0
         with:
           task-definition: ./terraform/task-definitions/task.json
@@ -144,7 +146,7 @@ jobs:
           service: service-test-devops
 
   CD-K8S:
-    if: ${{ always() }}
+    if: inputs.deploy-to-k8s == true
     needs: CI
     runs-on: ubuntu-latest
     steps:
