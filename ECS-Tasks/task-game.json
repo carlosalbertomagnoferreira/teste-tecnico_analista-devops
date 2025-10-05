@@ -1,16 +1,24 @@
-[
-  {
-    "name": "task-game",
-    "image": "public.ecr.aws/l6m2t8p7/docker-2048:latest",
-    "essential": true,
-    "portMappings": [
-      {
-        "containerPort": 80,
-        "hostPort": 80
-      }
-    ],
-    "memory": 512,
-    "cpu": 256,
-    "networkMode": "awsvpc"
-  }
-]
+{
+  "family": "game-2048-task-definition",
+  "containerDefinitions": [
+    {
+      "name": "game-2048",
+      "image": "public.ecr.aws/l6m2t8p7/docker-2048:latest",
+      "cpu": 256,
+      "memory": 512,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::532561859639:role/ecsTaskExecutionRole"
+}
