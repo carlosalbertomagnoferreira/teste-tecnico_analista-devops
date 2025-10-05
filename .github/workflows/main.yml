@@ -72,7 +72,7 @@ jobs:
           organization: ${{ vars.DOCKERHUB_USERNAME }}
 
   IaC-Terraform:
-    if: ${{ always() }}
+    if: ${{ inputs.terraform-apply == true || inputs.terraform-destroy == true }}
     needs: CI
     runs-on: ubuntu-latest
 
@@ -85,8 +85,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Muda versão da imagem para deploy
-        run: sed -i 's/latest/${{ needs.CI.outputs.tag-image }}/g' task-definitions/task.json
         if: inputs.docker-build-push-image == true
+        run: sed -i 's/latest/${{ needs.CI.outputs.tag-image }}/g' task-definitions/task.json
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5.0.0
@@ -170,7 +170,11 @@ jobs:
       - name: Deploy to K8S
         uses: Azure/k8s-deploy@v5.0.4
         with:
+          action: deploy
+          strategy: basic
           namespace: 'myapp'
           manifests: |
             ./k8s/deploy_svc.yaml
-          images: ${{ env.repositorio_nome_imagem }}:${{ needs.CI.outputs.tag-image }}
+          images: |
+            ${{ env.repositorio_nome_imagem }}:${{ needs.CI.outputs.tag-image }}
+          timeout: 2
