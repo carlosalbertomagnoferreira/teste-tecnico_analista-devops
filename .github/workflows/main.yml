@@ -73,7 +73,7 @@ jobs:
 
   IaC-Terraform:
     needs: CI
-    if: inputs.terraform-apply == true || inputs.terraform-destroy == true
+    if: always() && ( inputs.terraform-apply == true || inputs.terraform-destroy == true )
     runs-on: ubuntu-latest
 
     defaults:
