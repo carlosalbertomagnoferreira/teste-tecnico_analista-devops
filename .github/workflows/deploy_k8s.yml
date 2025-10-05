@@ -1,5 +1,5 @@
-name: CI - IaC - CD
-run-name: Executando CI-IaC-CD - ${{ github.run_number }}
+name: Deploy K8S
+run-name: Executando Deploy K8S - ${{ github.run_number }}
 on:
   workflow_dispatch:
 
@@ -7,7 +7,7 @@ env:
   repositorio_nome_imagem: "magnocarlos1988/teste-tecnico_analista-devops"
 
 jobs:
-  Deploy K8S:
+  Deploy-K8S:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
