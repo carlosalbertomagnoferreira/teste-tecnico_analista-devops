@@ -128,6 +128,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Deploy to ECS
         if: inputs.deploy-to-ecs-new-version == true
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2.4.0
@@ -144,16 +151,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Configure kubeconfig
         id: setcontext
         uses: azure/k8s-set-context@v4.0.1
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-      - name: View kubectl-version
-        run: |
-          kubectl version
 
       - name: Deploy to K8S
         uses: Azure/k8s-deploy@v5.0.4
