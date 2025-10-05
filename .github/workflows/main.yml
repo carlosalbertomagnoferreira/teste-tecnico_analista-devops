@@ -139,7 +139,7 @@ jobs:
         with:
           task-definition: ./ECS-Tasks/task-game.json
           cluster: teste-devops
-          service: service-game-2048
+          service: service-test-devops
 
   CD-K8S:
     if: inputs.deploy-to-k8s == true
