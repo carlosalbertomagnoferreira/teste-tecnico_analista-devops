@@ -143,20 +143,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Configure kubeconfig
-        if: inputs.deploy-to-k8s == true
         id: setcontext
         uses: azure/k8s-set-context@v4.0.1
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
+      - name: View kubectl-version
+        run: |
+          kubectl version
+
       - name: Deploy to K8S
-        if: inputs.deploy-to-k8s == true
         uses: Azure/k8s-deploy@v5.0.4
         with:
           namespace: 'myapp'
           manifests: |
-              k8s/deploy_svc.yaml
+            ./k8s/deploy_svc.yaml
           images: ${{ env.repositorio_nome_imagem }}:${{ needs.CI.outputs.tag-image }}
