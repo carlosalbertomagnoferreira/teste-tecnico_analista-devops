@@ -72,8 +72,8 @@ jobs:
           organization: ${{ vars.DOCKERHUB_USERNAME }}
 
   IaC-Terraform:
-    if: ${{ inputs.terraform-apply == true || inputs.terraform-destroy == true }}
     needs: CI
+    if: success() || always() && ( inputs.terraform-apply == true || inputs.terraform-destroy == true )
     runs-on: ubuntu-latest
 
     defaults:
