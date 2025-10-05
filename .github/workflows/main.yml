@@ -6,27 +6,27 @@ on:
   workflow_dispatch:
     inputs:
       docker-build-push-image:
-        description: "Executar build push da imagem docker"
+        description: "CI - Build push da imagem docker"
         type: boolean
         default: false
 
       terraform-apply:
-        description: "Executar terraform apply"
+        description: "IaC - Terraform apply"
         type: boolean
         default: false
 
       terraform-destroy:
-        description: "Executar terraform destroy"
+        description: "IaC - Terraform destroy"
         type: boolean
         default: false
       
-      deploy-to-ecs-new-version:
-        description: "Deploy nova versao da imagem no ECS"
+      deploy-to-ecs:
+        description: "CD-ECS - Deploy no ECS"
         type: boolean
         default: false
 
       deploy-to-k8s:
-        description: "Deploy em cluster kubernetes"
+        description: "CD-K8S - Deploy no Kubernetes"
         type: boolean
         default: false
 
@@ -121,8 +121,7 @@ jobs:
         if: inputs.terraform-destroy == true
 
   CD-ECS:
-    if: inputs.deploy-to-ecs-new-version == true
-    needs: CI
+    if: inputs.deploy-to-ecs == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -135,13 +134,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Muda nome da task
-        run: sed -i 's/first/${{ github.run_number }}/g' ./terraform/task-definitions/task.json
-
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2.4.0
         with:
-          task-definition: ./terraform/task-definitions/task.json
+          task-definition: ./ECS-Tasks/task-game.json
           cluster: teste-devops
           service: service-test-devops
 
