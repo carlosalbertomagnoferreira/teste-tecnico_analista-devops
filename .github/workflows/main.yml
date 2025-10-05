@@ -121,7 +121,8 @@ jobs:
         if: inputs.terraform-destroy == true
 
   CD-ECS:
-    if: inputs.deploy-to-ecs == true
+    needs: IaC-Terraform
+    if: success() || always() && ( inputs.deploy-to-ecs == true )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -142,8 +143,8 @@ jobs:
           service: service-test-devops
 
   CD-K8S:
-    if: inputs.deploy-to-k8s == true
-    needs: CI
+    needs: [ CI, CD-ECS ]
+    if: success() || always() && ( inputs.deploy-to-k8s == true )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
