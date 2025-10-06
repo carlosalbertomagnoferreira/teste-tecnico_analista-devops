@@ -39,9 +39,8 @@ terraform/                     # Infraestrutura como código (Terraform)
   service.tf                   # Serviço ECS
   taskdefination.tf            # Task Definition (integra com task-definitions/task.json)
   variables.tf                 # Variáveis do Terraform
-  task-definitions/task.json   # Task JSON usado por Terraform/GitHub Actions
-  .terraform/                   # Estado local / plugins (ignorável no repositório)
-
+  task-definitions/php.json    # Task JSON usado por Terraform/GitHub Actions
+  task-definitions/game.json   # Task JSON usado por Terraform/GitHub Actions
 ```
 
 ## Pré-requisitos
