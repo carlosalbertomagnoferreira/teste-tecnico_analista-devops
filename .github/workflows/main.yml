@@ -84,9 +84,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Muda versão da imagem para deploy
-        if: inputs.docker-build-push-image == true
-        run: sed -i 's/latest/${{ needs.CI.outputs.tag-image }}/g' task-definitions/task.json
+      # - name: Muda versão da imagem para deploy
+      #   if: inputs.docker-build-push-image == true
+      #   run: sed -i 's/latest/${{ needs.CI.outputs.tag-image }}/g' task-definitions/php.json
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5.0.0
