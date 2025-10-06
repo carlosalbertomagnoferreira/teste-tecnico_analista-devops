@@ -1,5 +1,14 @@
-# Stage 1: de instalação dos componentes com o composer
-FROM php:8.3-fpm-alpine3.22
+# Stage 1: Criação do projeto com composer
+FROM composer:2.8.12 AS builder
+
+# Defindo diretorio de trabalho de instalação
+WORKDIR /app
+
+# Criando projeto Laravel
+RUN composer create-project --prefer-dist laravel/laravel myapp
+
+# Stage 2: Usando image base para aplicação 
+FROM php:8.4-fpm-alpine3.22
 
 # Update de pacotes, correção de vulnerabilidades
 RUN apk update && apk upgrade
@@ -11,32 +20,21 @@ RUN apk add --no-cache \
     rm -rf /var/cache/apk/*
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Definindo diretorio de trabalho para contrução da imagem
-WORKDIR /var/www/html
-
-# Copiando arquivos do repositorio para a imagem
-COPY --chown=www-data:www-data . .
-
-# Instalando em multistage Composer
-COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-
-# Instalação das dependencias
-RUN composer install --no-dev --optimize-autoloader
-
-# Download e instalação do php-fpm health check script
+# Download e instalação do php-fpm-healthcheck script
 RUN curl -o /usr/local/bin/php-fpm-healthcheck \
 https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
 && chmod +x /usr/local/bin/php-fpm-healthcheck
 RUN set -xe && echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
-# RUN chown -R www-data:www-data /var/www/html
+# Definindo diretorio de trabalho de execução
+WORKDIR /var/www/html
+
+# Copiando arquivos gerados no stage 1
+COPY --chown=www-data --from=builder /app/myapp /var/www/html
 
 # Transferindo arquivo de inicialização
 COPY ./docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Ajuste de permissões
-RUN chown -R www-data:www-data vendor
 
 # Porta de acesso ao php-fpm
 EXPOSE 80
@@ -45,7 +43,8 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD php-fpm-healthcheck || exit 1
 
-# executa o php-fpm na inicialização do container
+# Executa o php-fpm apos script da inicialização
 CMD ["php-fpm"]
 
+# Script de inicialização
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
