@@ -52,8 +52,8 @@ Executando a pipeline completa:
 [![CI - CD](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml/badge.svg)](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml)
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-INPUTS.png" alt="INPUTS diagram" width="50%" />
-<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-CI-CD.png" alt="CI-CD diagram" width="100%" />
+<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-CI-IaC-CD-Inputs.png" alt="INPUTS diagram" width="50%" />
+<img src="https://raw.githubusercontent.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/main/GITHUBACTIONS-CI-IaC-CD.png" alt="CI-CD diagram" width="100%" />
 </div>
 
 ---

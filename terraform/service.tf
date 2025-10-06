@@ -1,7 +1,7 @@
 resource "aws_ecs_service" "my_first_services" {
   name                = "service-test-devops"
   cluster             = aws_ecs_cluster.my_cluster.id
-  task_definition     = aws_ecs_task_definition.my_first_task.arn
+  task_definition     = aws_ecs_task_definition.my_php_task.arn
   launch_type         = "FARGATE"
   scheduling_strategy = "REPLICA"
   desired_count       = 1

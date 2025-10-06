@@ -5,7 +5,7 @@ FROM composer:2.8.12 AS builder
 WORKDIR /app
 
 # Criando projeto Laravel
-RUN composer create-project --prefer-dist laravel/laravel myapp
+RUN composer create-project --prefer-dist laravel/laravel myapp --no-dev
 
 # Stage 2: Usando image base para aplicação 
 FROM php:8.4-fpm-alpine3.22
@@ -32,9 +32,13 @@ WORKDIR /var/www/html
 # Copiando arquivos gerados no stage 1
 COPY --chown=www-data --from=builder /app/myapp /var/www/html
 
+# Copiando arquivo info.php
+COPY --chown=www-data info.php /var/www/html/public/info.php
+
 # Transferindo arquivo de inicialização
 COPY ./docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
 
 # Porta de acesso ao php-fpm
 EXPOSE 80

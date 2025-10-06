@@ -1,6 +1,6 @@
 [
   {
-    "name": "my-first-task",
+    "name": "my-php-task",
     "image": "docker.io/magnocarlos1988/teste-tecnico_analista-devops:latest",
     "essential": true,
     "portMappings": [
