@@ -15,8 +15,8 @@ RUN apk update && apk upgrade
 
 # Instalando Nginx, fcgi e copiando arquivo de configuração
 RUN apk add --no-cache \
-    fcgi \
-    nginx && \
+    fcgi=2.4.6-r0 \
+    nginx=1.28.0-r3 && \
     rm -rf /var/cache/apk/*
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
