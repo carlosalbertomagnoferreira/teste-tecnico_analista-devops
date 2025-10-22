@@ -1,0 +1,104 @@
+stages:
+  - build
+  - terraform
+  - deploy-ecs
+  - deploy-k8s
+
+variables:
+  IMAGE: "magnocarlos1988/teste-tecnico_analista-devops"
+  TAG: "$CI_COMMIT_SHORT_SHA"
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
+  AWS_DEFAULT_REGION: "$AWS_REGION"
+
+build_image:
+  stage: build
+  image: docker:24
+  services:
+    - name: docker:24-dind
+      alias: docker
+  rules:
+    - if: '$DOCKER_BUILD_PUSH_IMAGE == "true"'
+      when: always
+    - when: never
+  script:
+    - echo "Lint Dockerfile"
+    - docker run --rm -i hadolint/hadolint < Dockerfile
+    - echo "Login Docker Hub"
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+    - echo "Build & Push"
+    - docker build -t $IMAGE:$TAG .
+    - docker push $IMAGE:$TAG
+    - docker tag $IMAGE:$TAG $IMAGE:latest
+    - docker push $IMAGE:latest
+    - echo "Optional: Docker Scout (pode falhar sem credenciais)"
+    - docker run --rm docker/scout-action:latest cves,recommendations $IMAGE:$TAG || true
+
+terraform:
+  stage: terraform
+  image: hashicorp/terraform:light
+  variables:
+    TF_IN_AUTOMATION: "1"
+  rules:
+    - if: '$TERRAFORM_APPLY == "true" || $TERRAFORM_DESTROY == "true"'
+      when: always
+    - when: never
+  before_script:
+    - export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+    - export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+    - export AWS_REGION="$AWS_REGION"
+  script:
+    - cd terraform
+    - terraform init
+    - terraform validate
+    - |
+      if [ "$TERRAFORM_APPLY" = "true" ]; then
+        terraform plan -out=tfplan.tfout
+        terraform apply -auto-approve tfplan.tfout
+      fi
+    - |
+      if [ "$TERRAFORM_DESTROY" = "true" ]; then
+        terraform plan -destroy -out=tfplandestroy
+        terraform apply -destroy -auto-approve tfplandestroy
+      fi
+
+deploy_ecs:
+  stage: deploy-ecs
+  image: amazon/aws-cli:2
+  dependencies:
+    - build_image
+    - terraform
+  rules:
+    - if: '$DEPLOY_TO_ECS == "true"'
+      when: on_success
+    - when: never
+  before_script:
+    - export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+    - export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+    - export AWS_DEFAULT_REGION="$AWS_REGION"
+    - export IMAGE_TAG="$TAG"
+  script:
+    - test -f ECS-Tasks/task-game.json || (echo "ECS task definition not found" && exit 1)
+    - sed -i "s|:latest|:$IMAGE_TAG|g" ECS-Tasks/task-game.json
+    - aws ecs register-task-definition --cli-input-json file://ECS-Tasks/task-game.json
+    - aws ecs update-service --cluster teste-devops --service service-test-devops --force-new-deployment
+
+deploy_k8s:
+  stage: deploy-k8s
+  image: bitnami/kubectl:latest
+  dependencies:
+    - build_image
+    - deploy_ecs
+  rules:
+    - if: '$DEPLOY_TO_K8S == "true"'
+      when: on_success
+    - when: never
+  before_script:
+    - echo "$KUBE_CONFIG" > kubeconfig
+    - export KUBECONFIG=$PWD/kubeconfig
+    - export IMAGE_TAG="$TAG"
+  script:
+    - test -f ./k8s/deploy_svc.yaml || (echo "K8s manifest not found" && exit 1)
+    - sed -i "s|:latest|:$IMAGE_TAG|g" ./k8s/deploy_svc.yaml || true
+    - kubectl apply -f ./k8s/deploy_svc.yaml -n myapp
+    - kubectl rollout status deployment --all -n myapp --timeout=120s
