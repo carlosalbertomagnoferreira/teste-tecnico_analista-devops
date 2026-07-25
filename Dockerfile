@@ -28,14 +28,16 @@ ENV APP_ENV=production \
 
 # As versões exatas são fornecidas pelo repositório da versão fixa do Alpine.
 # hadolint ignore=DL3018
-RUN apk add --no-cache nginx \
+RUN apk update && apk upgrade openssl c-ares curl libcurl \
+    && apk add --no-cache nginx \
     && cp "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini" \
     && install -d -o www-data -g www-data \
         /var/cache/nginx/client_temp \
         /var/cache/nginx/fastcgi_temp \
         /var/cache/nginx/proxy_temp \
         /var/cache/nginx/scgi_temp \
-        /var/cache/nginx/uwsgi_temp
+        /var/cache/nginx/uwsgi_temp \
+        && rm -rf /var/cache/apk/*
 
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/php-fpm/app.ini "${PHP_INI_DIR}/conf.d/99-app.ini"
