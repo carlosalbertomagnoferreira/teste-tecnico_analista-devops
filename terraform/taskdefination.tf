@@ -1,6 +1,8 @@
 resource "aws_ecs_task_definition" "my_php_task" {
-  family                   = "php-task"
-  container_definitions    = file("task-definitions/php.json")
+  family = "php-task"
+  container_definitions = templatefile("${path.module}/task-definitions/php.json", {
+    app_key_secret_arn = var.app_key_secret_arn
+  })
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   memory                   = 512

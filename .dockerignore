@@ -1,2 +1,12 @@
-/vendor
-/terraform
+# O build usa somente os arquivos liberados abaixo.
+**
+
+!Dockerfile
+!info.php
+!docker/
+!docker/nginx/
+!docker/nginx/nginx.conf
+!docker/php-fpm/
+!docker/php-fpm/app.ini
+!docker/php-fpm/entrypoint.sh
+!docker/php-fpm/www.conf

@@ -1,26 +1,21 @@
 #!/bin/sh
-set -e
+set -eu
 
-php -r "file_exists('.env') || copy('.env.example', '.env');"
-php artisan key:generate
+if [ "${1:-}" = "php-fpm" ]; then
+  if [ -z "${APP_KEY:-}" ]; then
+    echo >&2 "Erro: defina APP_KEY em tempo de execução (por variável ou secret)."
+    echo >&2 "Gere uma chave com: docker run --rm --entrypoint php <imagem> artisan key:generate --show"
+    exit 1
+  fi
 
-# Run Laravel migrations
-# -----------------------------------------------------------
-# Ensure the database schema is up to date.
-# -----------------------------------------------------------
-php artisan migrate --force
+  mkdir -p \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs
 
-# Clear and cache configurations
-# -----------------------------------------------------------
-# Improves performance by caching config and routes.
-# -----------------------------------------------------------
-php artisan config:cache
-php artisan route:cache
+  nginx -e /dev/stderr -t
+  nginx -e /dev/stderr
+fi
 
-chown -R www-data:www-data database
-
-# Start nginx process
-nohup nginx -g "daemon off;" &
-
-# Run the default command
 exec "$@"

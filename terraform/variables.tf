@@ -17,3 +17,8 @@ variable "env" {
   description = "Enviroment of the application"
   default     = "test"
 }
+
+variable "app_key_secret_arn" {
+  description = "ARN of the AWS Secrets Manager secret containing Laravel's APP_KEY"
+  type        = string
+}

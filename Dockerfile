@@ -1,54 +1,61 @@
-# Stage 1: Criação do projeto com composer
-FROM composer:2.8.12 AS builder
+# syntax=docker/dockerfile:1
 
-# Defindo diretorio de trabalho de instalação
+FROM composer:2.8.12@sha256:5248900ab8b5f7f880c2d62180e40960cd87f60149ec9a1abfd62ac72a02577c AS builder
+
+ARG LARAVEL_VERSION=12.0.11
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 WORKDIR /app
 
-# Criando projeto Laravel
-RUN composer create-project --prefer-dist laravel/laravel myapp --no-dev
+RUN composer create-project \
+        --prefer-dist \
+        --no-dev \
+        --no-interaction \
+        --no-progress \
+        "laravel/laravel:${LARAVEL_VERSION}" . \
+    && composer audit --locked --no-dev \
+    && composer clear-cache \
+    && rm -f .env
 
-# Stage 2: Usando image base para aplicação 
-FROM php:8.4-fpm-alpine3.22
+FROM php:8.4-fpm-alpine3.22@sha256:e0f1ffe8bd43a137facdccdcac41cabdfc23e8d0fdd0665916a062f16e2f4058 AS runtime
 
-# Update de pacotes, correção de vulnerabilidades
-RUN apk update && apk upgrade
+ENV APP_ENV=production \
+    APP_DEBUG=false \
+    LOG_CHANNEL=stderr \
+    CACHE_STORE=array \
+    SESSION_DRIVER=cookie \
+    QUEUE_CONNECTION=sync
 
-# Instalando Nginx, fcgi e copiando arquivo de configuração
-RUN apk add --no-cache \
-    fcgi=2.4.6-r0 \
-    nginx=1.28.0-r3 && \
-    rm -rf /var/cache/apk/*
-COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
+# As versões exatas são fornecidas pelo repositório da versão fixa do Alpine.
+# hadolint ignore=DL3018
+RUN apk add --no-cache nginx \
+    && cp "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini" \
+    && install -d -o www-data -g www-data \
+        /var/cache/nginx/client_temp \
+        /var/cache/nginx/fastcgi_temp \
+        /var/cache/nginx/proxy_temp \
+        /var/cache/nginx/scgi_temp \
+        /var/cache/nginx/uwsgi_temp
 
-# Download e instalação do php-fpm-healthcheck script
-RUN curl -o /usr/local/bin/php-fpm-healthcheck \
-https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
-&& chmod +x /usr/local/bin/php-fpm-healthcheck
-RUN set -xe && echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/php-fpm/app.ini "${PHP_INI_DIR}/conf.d/99-app.ini"
+COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/zz-app.conf
 
-# Definindo diretorio de trabalho de execução
 WORKDIR /var/www/html
 
-# Copiando arquivos gerados no stage 1
-COPY --chown=www-data --from=builder /app/myapp /var/www/html
+COPY --chown=www-data:www-data --from=builder /app /var/www/html
+COPY --chown=www-data:www-data info.php /var/www/html/public/info.php
+COPY --chmod=755 docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Copiando arquivo info.php
-COPY --chown=www-data info.php /var/www/html/public/info.php
+RUN nginx -e /dev/stderr -t \
+    && php-fpm --test
 
-# Transferindo arquivo de inicialização
-COPY ./docker/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+USER 82:82
 
+EXPOSE 8080
 
-# Porta de acesso ao php-fpm
-EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD ["wget", "--quiet", "--spider", "http://127.0.0.1:8080/healthz"]
 
-# healthcheck do php-fpm, verificando o serviço a cada 30 segundos
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD php-fpm-healthcheck || exit 1
-
-# Executa o php-fpm apos script da inicialização
-CMD ["php-fpm"]
-
-# Script de inicialização
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm", "--nodaemonize"]

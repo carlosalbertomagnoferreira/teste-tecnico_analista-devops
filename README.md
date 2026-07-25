@@ -1,6 +1,6 @@
 # Teste Técnico Analista DevOps 🚀 [![CI - CD](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml/badge.svg)](https://github.com/carlosalbertomagnoferreira/teste-tecnico_analista-devops/actions/workflows/main.yml)
 
-[![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/) [![Docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white)](https://www.docker.com/) [![Laravel](https://img.shields.io/badge/Laravel-red?logo=laravel&logoColor=white)](https://laravel.com/) [![Terraform](https://img.shields.io/badge/Terraform-1.x-4C6A86?logo=terraform&logoColor=white)](https://www.terraform.io/) [![AWS](https://img.shields.io/badge/AWS-Amazon%20Web%20Services-orange?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/) [![Nginx](https://img.shields.io/badge/nginx-stable-009639?logo=nginx&logoColor=white)](https://nginx.org/) [![Prometheus](https://img.shields.io/badge/Prometheus-orange?logo=prometheus&logoColor=white)](https://prometheus.io/) [![Grafana](https://img.shields.io/badge/Grafana-latest-F46800?logo=grafana&logoColor=white)](https://grafana.com/) [![Loki](https://img.shields.io/badge/Loki-latest-0f172a?logo=grafana&logoColor=white)](https://grafana.com/oss/loki) ![Kubernetes](https://img.shields.io/badge/K8s-optional-326CE5?logo=kubernetes)
+[![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white)](https://www.php.net/) [![Docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white)](https://www.docker.com/) [![Laravel](https://img.shields.io/badge/Laravel-red?logo=laravel&logoColor=white)](https://laravel.com/) [![Terraform](https://img.shields.io/badge/Terraform-1.x-4C6A86?logo=terraform&logoColor=white)](https://www.terraform.io/) [![AWS](https://img.shields.io/badge/AWS-Amazon%20Web%20Services-orange?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/) [![Nginx](https://img.shields.io/badge/nginx-stable-009639?logo=nginx&logoColor=white)](https://nginx.org/) [![Prometheus](https://img.shields.io/badge/Prometheus-orange?logo=prometheus&logoColor=white)](https://prometheus.io/) [![Grafana](https://img.shields.io/badge/Grafana-latest-F46800?logo=grafana&logoColor=white)](https://grafana.com/) [![Loki](https://img.shields.io/badge/Loki-latest-0f172a?logo=grafana&logoColor=white)](https://grafana.com/oss/loki) ![Kubernetes](https://img.shields.io/badge/K8s-optional-326CE5?logo=kubernetes)
 
 Repositório de teste técnico para Analista DevOps.  
 Objetivo:  
@@ -12,13 +12,42 @@ Objetivo:
 ---
 
 ### Etapa 1: Containerização da Aplicação 🧩
-- `Dockerfile` configurado para uma aplicação simples em PHP com Laravel.  
-- Multistage de criação da imagem realizando instação com imagem do composer em primeiro estagio
-- Segundo estagio usando de imagem base: `php:8.4-fpm-alpine3.22` otimizada com poucos pacotes e vulnerabilidades reduzidas 🐚  
-- Executado `apk update && apk upgrade` para mitigar vulnerabilidades conhecidas 🔧  
-- Instalado e configurado `nginx` para servir a aplicação dentro do container ⚓  
-- Copia arquivos gerados do primeiro estagio para imagem no segundo estagio
-- Adicionado `HEALTHCHECK` com `php-fpm-healthcheck` para validar estado do serviço ❤️‍🩹
+
+- Build multi-stage: o Composer cria a aplicação e somente os artefatos necessários seguem para a imagem final.
+- Imagem de runtime baseada em `php:8.4-fpm-alpine3.22`, com apenas Nginx adicionado.
+- Dependências de desenvolvimento, cache do Composer e `.env` não são incluídos na imagem.
+- Processo executado como `www-data`, sem privilégios de root, na porta interna `8080`.
+- Configurações de produção para PHP, OPcache, PHP-FPM e Nginx.
+- Logs enviados para `stdout`/`stderr` e endpoint `/healthz` validando Nginx e PHP-FPM.
+- Contexto de build restrito por allowlist no `.dockerignore`.
+- A página `/info.php` não usa `phpinfo()`, evitando exposição de módulos, caminhos e variáveis do ambiente.
+
+Para construir e executar localmente:
+
+```bash
+docker build --tag teste-devops:local .
+APP_KEY="$(docker run --rm --entrypoint php teste-devops:local artisan key:generate --show --no-ansi)"
+docker run --rm --read-only \
+  --publish 8080:8080 \
+  --env "APP_KEY=${APP_KEY}" \
+  --tmpfs /tmp \
+  --tmpfs /var/cache/nginx:uid=82,gid=82 \
+  --tmpfs /var/www/html/storage:uid=82,gid=82 \
+  teste-devops:local
+```
+
+A chave da aplicação é obrigatória e deve ser fornecida em tempo de execução por um gerenciador de secrets; ela nunca deve ser gravada no Dockerfile ou versionada. Antes do deploy Kubernetes, crie o Secret referenciado pelo manifesto:
+
+```bash
+kubectl create secret generic php-app \
+  --from-literal="app-key=$(openssl rand -base64 32 | sed 's/^/base64:/')"
+```
+
+No ECS, informe ao Terraform o ARN de um secret do AWS Secrets Manager cujo valor seja a `APP_KEY`:
+
+```bash
+terraform plan -var='app_key_secret_arn=arn:aws:secretsmanager:REGIAO:CONTA:secret:NOME'
+```
 
 ---
 

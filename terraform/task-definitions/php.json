@@ -3,14 +3,29 @@
     "name": "my-php-task",
     "image": "docker.io/magnocarlos1988/teste-tecnico_analista-devops:latest",
     "essential": true,
-    "portMappings": [
+    "secrets": [
       {
-        "containerPort": 80,
-        "hostPort": 80
+        "name": "APP_KEY",
+        "valueFrom": "${app_key_secret_arn}"
       }
     ],
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "hostPort": 8080,
+        "protocol": "tcp"
+      }
+    ],
+    "user": "82:82",
+    "linuxParameters": {
+      "capabilities": {
+        "drop": [
+          "ALL"
+        ]
+      },
+      "initProcessEnabled": true
+    },
     "memory": 512,
-    "cpu": 256,
-    "networkMode": "awsvpc"
+    "cpu": 256
   }
 ]

@@ -1,10 +1,13 @@
 <?php
 
-// Mostra todas as informações, equivalente ao padrão INFO_ALL
-phpinfo();
+declare(strict_types=1);
 
-// Mostra apenas informações sobre módulos.
-// phpinfo(8) gera resultados idênticos.
-phpinfo(INFO_MODULES);
+header('Content-Type: application/json; charset=utf-8');
 
-?>
+echo json_encode(
+    [
+        'status' => 'ok',
+        'application' => 'teste-tecnico-analista-devops',
+    ],
+    JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES
+);
